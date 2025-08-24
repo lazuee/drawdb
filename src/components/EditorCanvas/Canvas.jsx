@@ -390,7 +390,42 @@ export default function Canvas() {
    * @param {PointerEvent} e
    */
   const handlePointerDown = (e) => {
+    if (bulkSelectedElements.length > 0 && e.isPrimary && e.target.nodeName === "rect") {
+      setDragging(notDragging);
+      setSelectedElement({
+        element: ObjectType.NONE,
+        id: -1,
+        open: false,
+      });
+      setBulkSelectedElements([]);
+      setPanning((prev) => ({ ...prev, isPanning: false }));
+      pointer.setStyle("default");
+      return;
+    }
+
+    if (selectedElement.open && !layout.sidebar) return;
     if (!e.isPrimary) return;
+
+    if (e.button === 0) {
+      if (e.ctrlKey || e.metaKey) {
+        setBulkSelectRect({
+          x1: pointer.spaces.diagram.x,
+          y1: pointer.spaces.diagram.y,
+          x2: pointer.spaces.diagram.x,
+          y2: pointer.spaces.diagram.y,
+          show: elementPointerDown === null || !elementPointerDown.element.locked,
+          ctrlKey: e.ctrlKey,
+          metaKey: e.metaKey,
+        });
+        return;
+      }
+
+      if (elementPointerDown !== null) {
+        handlePointerDownOnElement(e, elementPointerDown);
+        pointer.setStyle(elementPointerDown.element.locked ? "not-allowed" : "grab");
+        return;
+      }
+    }
 
     // don't pan if the sidesheet for editing a table is open
     if (
@@ -400,33 +435,14 @@ export default function Canvas() {
     )
       return;
 
-    const isMouseLeftButton = e.button === 0;
-    const isMouseMiddleButton = e.button === 1;
-
-    if (isMouseLeftButton) {
-      setBulkSelectRect({
-        x1: pointer.spaces.diagram.x,
-        y1: pointer.spaces.diagram.y,
-        x2: pointer.spaces.diagram.x,
-        y2: pointer.spaces.diagram.y,
-        show: elementPointerDown === null || !elementPointerDown.element.locked,
-        ctrlKey: e.ctrlKey,
-        metaKey: e.metaKey,
-      });
-      if (elementPointerDown !== null) {
-        handlePointerDownOnElement(e, elementPointerDown);
-      }
-      pointer.setStyle("crosshair");
-    } else if (isMouseMiddleButton) {
-      setPanning({
-        isPanning: true,
-        panStart: transform.pan,
-        // Diagram space depends on the current panning.
-        // Use screen space to avoid circular dependencies and undefined behavior.
-        cursorStart: pointer.spaces.screen,
-      });
-      pointer.setStyle("grabbing");
-    }
+    setPanning({
+      isPanning: true,
+      panStart: transform.pan,
+      // Diagram space depends on the current panning.
+      // Use screen space to avoid circular dependencies and undefined behavior.
+      cursorStart: pointer.spaces.screen,
+    });
+    pointer.setStyle("grabbing");
   };
 
   const isDragging = () => {
@@ -626,13 +642,13 @@ export default function Canvas() {
             x:
               prev.pan.x -
               (pointer.spaces.diagram.x - prev.pan.x) *
-                eagernessFactor *
-                Math.sign(e.deltaY),
+              eagernessFactor *
+              Math.sign(e.deltaY),
             y:
               prev.pan.y -
               (pointer.spaces.diagram.y - prev.pan.y) *
-                eagernessFactor *
-                Math.sign(e.deltaY),
+              eagernessFactor *
+              Math.sign(e.deltaY),
           },
           zoom: e.deltaY <= 0 ? prev.zoom * 1.05 : prev.zoom / 1.05,
         }));
