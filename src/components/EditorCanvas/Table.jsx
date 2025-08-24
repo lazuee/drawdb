@@ -11,7 +11,7 @@ import {
   IconMore,
   IconMinus,
   IconDeleteStroked,
-  IconKeyStroked,
+
   IconLock,
   IconUnlock,
 } from "@douyinfe/semi-icons";
@@ -32,7 +32,7 @@ export default function Table({
   setLinkingLine,
 }) {
   const [hoveredField, setHoveredField] = useState(null);
-  const { database } = useDiagram();
+  const { database, relationships } = useDiagram();
   const { layout } = useLayout();
   const { deleteTable, deleteField, updateTable } = useDiagram();
   const { settings } = useSettings();
@@ -45,7 +45,7 @@ export default function Table({
   } = useSelect();
 
   const borderColor = useMemo(
-    () => (settings.mode === "light" ? "border-zinc-300" : "border-zinc-600"),
+    () => (settings.mode === "light" ? "border-zinc-500" : "border-zinc-400"),
     [settings.mode],
   );
 
@@ -137,27 +137,25 @@ export default function Table({
         y={tableData.y}
         width={settings.tableWidth}
         height={height}
-        className="group drop-shadow-lg rounded-md cursor-move"
+        className="group cursor-move"
         onPointerDown={onPointerDown}
       >
         <div
           onDoubleClick={openEditor}
           className={`border-2 hover:border-dashed hover:border-blue-500
-               select-none rounded-lg w-full ${
-                 settings.mode === "light"
-                   ? "bg-zinc-100 text-zinc-800"
-                   : "bg-zinc-800 text-zinc-200"
-               } ${isSelected ? "border-solid border-blue-500" : borderColor}`}
+               select-none w-full ${settings.mode === "light"
+              ? "bg-zinc-100 text-zinc-800"
+              : "bg-zinc-800 text-zinc-200"
+            } ${isSelected ? "border-solid border-blue-500" : borderColor}`}
           style={{ direction: "ltr" }}
         >
           <div
-            className="h-[10px] w-full rounded-t-md"
+            className="h-[10px] w-full"
             style={{ backgroundColor: tableData.color }}
           />
           <div
-            className={`overflow-hidden font-bold h-[40px] flex justify-between items-center border-b border-gray-400 ${
-              settings.mode === "light" ? "bg-zinc-200" : "bg-zinc-900"
-            }`}
+            className={`overflow-hidden font-bold h-[40px] flex justify-between items-center border-b border-zinc-400 ${settings.mode === "light" ? "bg-zinc-200" : "bg-zinc-900"
+              }`}
           >
             <div className="px-3 overflow-hidden text-ellipsis whitespace-nowrap">
               {tableData.name}
@@ -196,9 +194,8 @@ export default function Table({
                       </div>
                       <div>
                         <strong
-                          className={`${
-                            tableData.indices.length === 0 ? "" : "block"
-                          }`}
+                          className={`${tableData.indices.length === 0 ? "" : "block"
+                            }`}
                         >
                           {t("indices")}:
                         </strong>{" "}
@@ -209,11 +206,10 @@ export default function Table({
                             {tableData.indices.map((index, k) => (
                               <div
                                 key={k}
-                                className={`flex items-center my-1 px-2 py-1 rounded ${
-                                  settings.mode === "light"
-                                    ? "bg-gray-100"
-                                    : "bg-zinc-800"
-                                }`}
+                                className={`flex items-center my-1 px-2 py-1 ${settings.mode === "light"
+                                  ? "bg-gray-100"
+                                  : "bg-zinc-800"
+                                  }`}
                               >
                                 <i className="fa-solid fa-thumbtack me-2 mt-1 text-slate-500"></i>
                                 <div>
@@ -276,8 +272,8 @@ export default function Table({
                         {e.type +
                           ((dbToTypes[database][e.type].isSized ||
                             dbToTypes[database][e.type].hasPrecision) &&
-                          e.size &&
-                          e.size !== ""
+                            e.size &&
+                            e.size !== ""
                             ? "(" + e.size + ")"
                             : "")}
                       </p>
@@ -354,13 +350,19 @@ export default function Table({
   );
 
   function field(fieldData, index) {
+    const isForeignKey = relationships.some(rel =>
+      rel.startTableId === tableData.id && rel.startFieldId === fieldData.id
+    );
+
+    let keyType = "";
+    if (fieldData.primary) keyType = "PK";
+    else if (isForeignKey) keyType = "FK";
+    else if (fieldData.unique) keyType = "UQ";
+
     return (
       <div
-        className={`${
-          index === tableData.fields.length - 1
-            ? ""
-            : "border-b border-gray-400"
-        } group h-[36px] px-2 py-1 flex justify-between items-center gap-1 w-full overflow-hidden`}
+        className={`${index === tableData.fields.length - 1 ? "" : "border-b border-zinc-400"
+          } group h-[36px] w-full grid ${settings.showDataTypes ? "grid-cols-[40px_1fr_120px]":"grid-cols-[40px_1fr]"} items-center`}
         onPointerEnter={(e) => {
           if (!e.isPrimary) return;
 
@@ -380,40 +382,43 @@ export default function Table({
           });
         }}
         onPointerDown={(e) => {
-          // Required for onPointerLeave to trigger when a touch pointer leaves
-          // https://stackoverflow.com/a/70976017/1137077
           e.target.releasePointerCapture(e.pointerId);
         }}
       >
-        <div
-          className={`${
-            hoveredField === index ? "text-zinc-400" : ""
-          } flex items-center gap-2 overflow-hidden`}
-        >
+        <div className="h-full flex items-center justify-center text-center font-mono text-zinc-500">
+          {hoveredField === index ? (
+            <Button
+              theme="solid"
+              size="small"
+              style={{ backgroundColor: "#d42020b3" }}
+              icon={<IconMinus />}
+              onClick={() => deleteField(fieldData, tableData.id)}
+            />
+          ) : keyType}
+        </div>
+        <div className={`h-full border-zinc-400 flex items-center gap-2 overflow-hidden px-2 ${settings.showDataTypes ? "border-x" : "border-l"}`}>
           <button
             className="shrink-0 w-[10px] h-[10px] bg-[#2f68adcc] rounded-full"
             onPointerDown={(e) => {
               if (!e.isPrimary) return;
 
-              handleGripField();
+              handleGripField(fieldData, tableData.id);
+
+              const gripYOffset =
+                tableHeaderHeight +
+                tableColorStripHeight +
+                index * tableFieldHeight +
+                tableFieldHeight / 2;
+              const gripXOffset = settings.tableWidth / 2;
+
               setLinkingLine((prev) => ({
                 ...prev,
                 startFieldId: fieldData.id,
                 startTableId: tableData.id,
-                startX: tableData.x + 15,
-                startY:
-                  tableData.y +
-                  index * tableFieldHeight +
-                  tableHeaderHeight +
-                  tableColorStripHeight +
-                  12,
-                endX: tableData.x + 15,
-                endY:
-                  tableData.y +
-                  index * tableFieldHeight +
-                  tableHeaderHeight +
-                  tableColorStripHeight +
-                  12,
+                startX: tableData.x + gripXOffset,
+                startY: tableData.y + gripYOffset,
+                endX: tableData.x + gripXOffset,
+                endY: tableData.y + gripYOffset,
               }));
             }}
           />
@@ -421,37 +426,23 @@ export default function Table({
             {fieldData.name}
           </span>
         </div>
-        <div className="text-zinc-400">
-          {hoveredField === index ? (
-            <Button
-              theme="solid"
-              size="small"
-              style={{
-                backgroundColor: "#d42020b3",
-              }}
-              icon={<IconMinus />}
-              onClick={() => deleteField(fieldData, tableData.id)}
-            />
-          ) : settings.showDataTypes ? (
-            <div className="flex gap-1 items-center">
-              {fieldData.primary && <IconKeyStroked />}
-              {!fieldData.notNull && <span className="font-mono">?</span>}
-              <span
-                className={
-                  "font-mono " + dbToTypes[database][fieldData.type].color
-                }
-              >
-                {fieldData.type +
-                  ((dbToTypes[database][fieldData.type].isSized ||
-                    dbToTypes[database][fieldData.type].hasPrecision) &&
+        {settings.showDataTypes ? (
+          <div className="px-2 h-full flex items-center text-zinc-400">
+            <span
+              className={
+                "font-mono " + dbToTypes[database][fieldData.type].color
+              }
+            >
+              {fieldData.type +
+                ((dbToTypes[database][fieldData.type].isSized ||
+                  dbToTypes[database][fieldData.type].hasPrecision) &&
                   fieldData.size &&
                   fieldData.size !== ""
-                    ? `(${fieldData.size})`
-                    : "")}
-              </span>
-            </div>
-          ) : null}
-        </div>
+                  ? `(${fieldData.size})`
+                  : "")}
+            </span>
+          </div>
+        ) : null}
       </div>
     );
   }
