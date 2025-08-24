@@ -9,7 +9,7 @@ import {
   IconUndo,
   IconRedo,
   IconEdit,
-  IconShareStroked,
+  // IconShareStroked,
 } from "@douyinfe/semi-icons";
 import { Link, useNavigate } from "react-router-dom";
 import icon from "../../assets/icon_dark_64.png";
@@ -1405,9 +1405,9 @@ export default function ControlPanel({
       table_width: {
         function: () => setModal(MODAL.TABLE_WIDTH),
       },
-      language: {
-        function: () => setModal(MODAL.LANGUAGE),
-      },
+      // language: {
+      //   function: () => setModal(MODAL.LANGUAGE),
+      // },
       export_saved_data: {
         function: exportSavedData,
       },
@@ -1485,7 +1485,7 @@ export default function ControlPanel({
             style={isRtl(i18n.language) ? { direction: "rtl" } : {}}
           >
             {header()}
-            {window.name.split(" ")[0] !== "t" && (
+            {/* {window.name.split(" ")[0] !== "t" && (
               <Button
                 type="primary"
                 className="!text-base me-2 !pe-6 !ps-5 !py-[18px] !rounded-md"
@@ -1495,7 +1495,7 @@ export default function ControlPanel({
               >
                 {t("share")}
               </Button>
-            )}
+            )} */}
           </div>
         )}
         {layout.toolbar && toolbar()}
