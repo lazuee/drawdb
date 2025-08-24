@@ -2,15 +2,15 @@ import { createContext, useEffect, useState } from "react";
 import { tableWidth } from "../data/constants";
 
 const defaultSettings = {
-  strictMode: false,
+  strictMode: true,
   showFieldSummary: true,
   showGrid: true,
   snapToGrid: false,
   showDataTypes: true,
   mode: "light",
   autosave: true,
-  showCardinality: true,
-  showRelationshipLabels: true,
+  showCardinality: false,
+  showRelationshipLabels: false,
   tableWidth: tableWidth,
   showDebugCoordinates: false,
 };

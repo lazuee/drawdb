@@ -305,7 +305,7 @@ export default function TableInfo({ data }) {
                     check: "",
                     primary: false,
                     unique: false,
-                    notNull: false,
+                    notNull: true,
                     increment: false,
                     comment: "",
                   },

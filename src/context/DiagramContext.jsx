@@ -40,7 +40,7 @@ export default function DiagramContextProvider({ children }) {
               default: "",
               check: "",
               primary: true,
-              unique: true,
+              unique: false,
               notNull: true,
               increment: true,
               comment: "",
