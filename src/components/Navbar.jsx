@@ -55,7 +55,7 @@ export default function Navbar() {
             >
               <i className="opacity-70 bi bi-github" />
             </a>
-            <a
+            {/* <a
               title="Follow us on X"
               className="px-2 py-2 hover:opacity-60 transition-all duration-300 rounded-full text-2xl"
               href={socials.twitter}
@@ -72,7 +72,7 @@ export default function Navbar() {
               rel="noreferrer"
             >
               <i className="opacity-70 bi bi-discord" />
-            </a>
+            </a> */}
           </div>
         </div>
         <button
