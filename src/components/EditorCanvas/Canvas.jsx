@@ -609,6 +609,22 @@ export default function Canvas() {
     )
       return;
 
+    const existRelationship = relationships.find((r) => {
+      const startToEnd =
+        r.startTableId === linkingLine.startTableId &&
+        r.startFieldId === linkingLine.startFieldId &&
+        r.endTableId === hoveredTable.tableId &&
+        r.endFieldId === hoveredTable.fieldId;
+      const endToStart =
+        r.startTableId === hoveredTable.tableId &&
+        r.startFieldId === hoveredTable.fieldId &&
+        r.endTableId === linkingLine.startTableId &&
+        r.endFieldId === linkingLine.startFieldId;
+
+      return startToEnd || endToStart;
+    });
+    if (existRelationship) return;
+
     const cardinality = getCardinality(startField, endField);
 
     const newRelationship = {

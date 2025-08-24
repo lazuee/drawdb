@@ -9,6 +9,7 @@ import RelationshipInfo from "../EditorSidePanel/RelationshipsTab/RelationshipIn
 const labelFontSize = 16;
 
 export default function Relationship({ data }) {
+  const [editing, setEditing] = useState(false);
   const { settings } = useSettings();
   const { tables } = useDiagram();
   const { layout } = useLayout();
@@ -30,6 +31,10 @@ export default function Relationship({ data }) {
       endTable: { x: endTable.x, y: endTable.y },
     };
   }, [tables, data]);
+
+  useEffect(() => {
+    setEditing(data.id === selectedElement.id);
+  }, [data.id, selectedElement.id]);
 
   const pathRef = useRef();
   const labelRef = useRef();
@@ -88,6 +93,7 @@ export default function Relationship({ data }) {
   }
 
   const edit = () => {
+    setEditing(true);
     if (!layout.sidebar) {
       setSelectedElement((prev) => ({
         ...prev,
@@ -110,14 +116,17 @@ export default function Relationship({ data }) {
     }
   };
 
+  const editingPathClass = ["group-hover:stroke-sky-700", editing && "stroke-sky-700"].filter(Boolean).join(" ");
+  const editingCircleClass = ["group-hover:fill-sky-700", editing && "fill-sky-700"].filter(Boolean).join(" ");
+
   return (
     <>
-      <g className="select-none group" onDoubleClick={edit}>
+      <g className="select-none group cursor-pointer" onDoubleClick={edit}>
         <path
           ref={pathRef}
           d={calcPath(pathValues, settings.tableWidth)}
           stroke="gray"
-          className="group-hover:stroke-sky-700"
+          className={editingPathClass}
           fill="none"
           strokeWidth={2}
           cursor="pointer"
@@ -130,7 +139,7 @@ export default function Relationship({ data }) {
             fontSize={labelFontSize}
             fontWeight={500}
             ref={labelRef}
-            className="group-hover:fill-sky-700"
+            className={editingCircleClass}
           >
             {data.name}
           </text>
@@ -141,11 +150,13 @@ export default function Relationship({ data }) {
               x={cardinalityStartX}
               y={cardinalityStartY}
               text={cardinalityStart}
+              className={editingCircleClass}
             />
             <CardinalityLabel
               x={cardinalityEndX}
               y={cardinalityEndY}
               text={cardinalityEnd}
+              className={editingCircleClass}
             />
           </>
         )}
@@ -175,7 +186,7 @@ export default function Relationship({ data }) {
   );
 }
 
-function CardinalityLabel({ x, y, text, r = 12, padding = 14 }) {
+function CardinalityLabel({ x, y, text, r = 12, padding = 14, className = "" }) {
   const [textWidth, setTextWidth] = useState(0);
   const textRef = useRef(null);
 
@@ -196,7 +207,7 @@ function CardinalityLabel({ x, y, text, r = 12, padding = 14 }) {
         width={textWidth + padding}
         height={r * 2}
         fill="grey"
-        className="group-hover:fill-sky-700"
+        className={className}
       />
       <text
         ref={textRef}
