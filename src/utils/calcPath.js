@@ -48,57 +48,73 @@ export function calcPath(r, tableWidth = 200, zoom = 1) {
     radius = Math.max(radius, minRadius);
   }
 
-  if (y1 <= y2) {
-    if (x1 + width <= x2) {
-      return `M ${x1 + width} ${y1} L ${midX - radius} ${y1}
-        A ${radius} ${radius} 0 0 1 ${midX} ${y1 + radius}
-        L ${midX} ${y2 - radius}
-        A ${radius} ${radius} 0 0 0 ${midX + radius} ${y2}
-        L ${endX} ${y2}`;
-    } else if (x2 <= x1 + width && x1 <= x2) {
-      return `M ${x1 + width} ${y1} L ${x2 + width} ${y1}
-        A ${radius} ${radius} 0 0 1 ${x2 + width + radius} ${y1 + radius}
-        L ${x2 + width + radius} ${y2 - radius}
-        A ${radius} ${radius} 0 0 1 ${x2 + width} ${y2}
-        L ${x2 + width} ${y2}`;
-    } else if (x2 + width >= x1 && x2 + width <= x1 + width) {
-      return `M ${x1} ${y1} L ${x2 - radius} ${y1}
-        A ${radius} ${radius} 0 0 0 ${x2 - radius * 2} ${y1 + radius}
-        L ${x2 - radius * 2} ${y2 - radius}
-        A ${radius} ${radius} 0 0 0 ${x2 - radius} ${y2}
-        L ${x2} ${y2}`;
+  const startRight = x1 + width;
+  const startLeft = x1;
+  const endRight = x2 + width;
+  const endLeft = x2;
+
+  // top = use y above center; bottom = use y below center
+  const halfField = tableFieldHeight / 2;
+  const startTopY = y1 - halfField;
+  const startBottomY = y1 + halfField;
+  const endTopY = y2 - halfField;
+  const endBottomY = y2 + halfField;
+
+  const useTop = y1 <= y2; // start is above end -> use "top" y
+  const sY = useTop ? startTopY : startBottomY;
+  const eY = useTop ? endTopY : endBottomY;
+
+  if (useTop) {
+    if (startRight <= endLeft) {
+      return `M ${startRight} ${sY} L ${midX - radius} ${sY}
+        A ${radius} ${radius} 0 0 1 ${midX} ${sY + radius}
+        L ${midX} ${eY - radius}
+        A ${radius} ${radius} 0 0 0 ${midX + radius} ${eY}
+        L ${endX} ${eY}`;
+    } else if (endLeft >= startLeft && startLeft <= endLeft) {
+      return `M ${startRight} ${sY} L ${endRight} ${sY}
+      A ${radius} ${radius} 0 0 1 ${endRight + radius} ${sY + radius}
+      L ${endRight + radius} ${eY - radius}
+      A ${radius} ${radius} 0 0 1 ${endRight} ${eY}
+      L ${endRight} ${eY}`;
+    } else if (endRight >= startLeft && endRight <= startRight) {
+      return `M ${startLeft} ${sY} L ${endLeft - radius} ${sY}
+      A ${radius} ${radius} 0 0 0 ${endLeft - radius * 2} ${sY + radius}
+      L ${endLeft - radius * 2} ${eY - radius}
+      A ${radius} ${radius} 0 0 0 ${endLeft - radius} ${eY}
+      L ${endLeft} ${eY}`;
     } else {
-      return `M ${x1} ${y1} L ${midX + radius} ${y1}
-        A ${radius} ${radius} 0 0 0 ${midX} ${y1 + radius}
-        L ${midX} ${y2 - radius}
-        A ${radius} ${radius} 0 0 1 ${midX - radius} ${y2}
-        L ${endX} ${y2}`;
+      return `M ${startLeft} ${sY} L ${midX + radius} ${sY}
+        A ${radius} ${radius} 0 0 0 ${midX} ${sY + radius}
+        L ${midX} ${eY - radius}
+        A ${radius} ${radius} 0 0 1 ${midX - radius} ${eY}
+        L ${endX} ${eY}`;
     }
   } else {
-    if (x1 + width <= x2) {
-      return `M ${x1 + width} ${y1} L ${midX - radius} ${y1}
-        A ${radius} ${radius} 0 0 0 ${midX} ${y1 - radius}
-        L ${midX} ${y2 + radius}
-        A ${radius} ${radius} 0 0 1 ${midX + radius} ${y2}
-        L ${endX} ${y2}`;
-    } else if (x1 + width >= x2 && x1 + width <= x2 + width) {
-      return `M ${x1} ${y1} L ${x1 - radius * 2} ${y1}
-        A ${radius} ${radius} 0 0 1 ${x1 - radius * 3} ${y1 - radius}
-        L ${x1 - radius * 3} ${y2 + radius}
-        A ${radius} ${radius} 0 0 1 ${x1 - radius * 2} ${y2}
-        L ${endX} ${y2}`;
-    } else if (x1 >= x2 && x1 <= x2 + width) {
-      return `M ${x1 + width} ${y1} L ${x1 + width + radius} ${y1}
-        A ${radius} ${radius} 0 0 0 ${x1 + width + radius * 2} ${y1 - radius}
-        L ${x1 + width + radius * 2} ${y2 + radius}
-        A ${radius} ${radius} 0 0 0 ${x1 + width + radius} ${y2}
-        L ${x2 + width} ${y2}`;
+    if (startRight <= endLeft) {
+      return `M ${startRight} ${sY} L ${midX - radius} ${sY}
+        A ${radius} ${radius} 0 0 0 ${midX} ${sY - radius}
+        L ${midX} ${eY + radius}
+        A ${radius} ${radius} 0 0 1 ${midX + radius} ${eY}
+        L ${endX} ${eY}`;
+    } else if (startRight >= endLeft && startRight <= endRight) {
+      return `M ${startLeft} ${sY} L ${startLeft - radius * 2} ${sY}
+      A ${radius} ${radius} 0 0 1 ${startLeft - radius * 3} ${sY - radius}
+      L ${startLeft - radius * 3} ${eY + radius}
+      A ${radius} ${radius} 0 0 1 ${startLeft - radius * 2} ${eY}
+        L ${endX} ${eY}`;
+    } else if (startLeft >= endLeft && startLeft <= endRight) {
+      return `M ${startRight} ${sY} L ${startRight + radius} ${sY}
+      A ${radius} ${radius} 0 0 0 ${startRight + radius * 2} ${sY - radius}
+      L ${startRight + radius * 2} ${eY + radius}
+      A ${radius} ${radius} 0 0 0 ${startRight + radius} ${eY}
+      L ${endRight} ${eY}`;
     } else {
-      return `M ${x1} ${y1} L ${midX + radius} ${y1}
-        A ${radius} ${radius} 0 0 1 ${midX} ${y1 - radius}
-        L ${midX} ${y2 + radius}
-        A ${radius} ${radius} 0 0 0 ${midX - radius} ${y2}
-        L ${endX} ${y2}`;
+      return `M ${startLeft} ${sY} L ${midX + radius} ${sY}
+        A ${radius} ${radius} 0 0 1 ${midX} ${sY - radius}
+        L ${midX} ${eY + radius}
+        A ${radius} ${radius} 0 0 0 ${midX - radius} ${eY}
+        L ${endX} ${eY}`;
     }
   }
 }
