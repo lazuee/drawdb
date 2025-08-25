@@ -771,12 +771,15 @@ export default function Canvas() {
             />
           ))}
           {linking && (
-            <path
-              d={`M ${linkingLine.startX} ${linkingLine.startY} L ${linkingLine.endX} ${linkingLine.endY}`}
-              stroke="red"
-              strokeDasharray="8,8"
-              className="pointer-events-none touch-none"
-            />
+            <>
+              <rect x={linkingLine.startX - 4} y={linkingLine.startY - 8} width="8" height="8" fill="none" stroke="red" strokeWidth="1" />
+              <path
+                d={`M ${linkingLine.startX} ${linkingLine.startY - 4} L ${linkingLine.endX} ${linkingLine.endY}`}
+                stroke="red"
+                strokeDasharray="8,8"
+                className="pointer-events-none touch-none"
+              />
+            </>
           )}
           {notes.map((n) => (
             <Note

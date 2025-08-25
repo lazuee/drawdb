@@ -154,7 +154,7 @@ export default function Table({
             style={{ backgroundColor: tableData.color }}
           />
           <div
-            className={`overflow-hidden font-bold h-[40px] flex justify-between items-center border-b border-zinc-400 ${settings.mode === "light" ? "bg-zinc-200" : "bg-zinc-900"
+            className={`overflow-hidden font-bold h-[40px] flex justify-between items-center border-b border-zinc-600 ${settings.mode === "light" ? "bg-zinc-200" : "bg-zinc-900"
               }`}
           >
             <div className="px-3 overflow-hidden text-ellipsis whitespace-nowrap">
@@ -362,7 +362,7 @@ export default function Table({
     return (
       <div
         className={`${index === tableData.fields.length - 1 ? "" : "border-b border-zinc-400"
-          } group h-[36px] w-full grid ${settings.showDataTypes ? "grid-cols-[40px_1fr_120px]":"grid-cols-[40px_1fr]"} items-center`}
+          } group h-[36px] w-full grid ${settings.showDataTypes ? "grid-cols-[40px_1fr_120px]" : "grid-cols-[1fr_40px]"} items-center`}
         onPointerEnter={(e) => {
           if (!e.isPrimary) return;
 
@@ -385,18 +385,20 @@ export default function Table({
           e.target.releasePointerCapture(e.pointerId);
         }}
       >
-        <div className="h-full flex items-center justify-center text-center font-mono text-zinc-500">
-          {hoveredField === index ? (
-            <Button
-              theme="solid"
-              size="small"
-              style={{ backgroundColor: "#d42020b3" }}
-              icon={<IconMinus />}
-              onClick={() => deleteField(fieldData, tableData.id)}
-            />
-          ) : keyType}
-        </div>
-        <div className={`h-full border-zinc-400 flex items-center gap-2 overflow-hidden px-2 ${settings.showDataTypes ? "border-x" : "border-l"}`}>
+        {settings.showDataTypes ? (
+          <div className="h-full flex items-center justify-center text-center font-mono text-zinc-600">
+            {hoveredField === index ? (
+              <Button
+                theme="solid"
+                size="small"
+                style={{ backgroundColor: "#d42020b3" }}
+                icon={<IconMinus />}
+                onClick={() => deleteField(fieldData, tableData.id)}
+              />
+            ) : keyType}
+          </div>
+        ) : null}
+        <div className={`h-full border-zinc-400 flex items-center gap-2 overflow-hidden px-2 ${settings.showDataTypes ? "border-x" : "border-0"}`}>
           <button
             className="shrink-0 w-[10px] h-[10px] bg-[#2f68adcc] rounded-full"
             onPointerDown={(e) => {
@@ -427,7 +429,7 @@ export default function Table({
           </span>
         </div>
         {settings.showDataTypes ? (
-          <div className="px-2 h-full flex items-center text-zinc-400">
+          <div className="px-2 h-full flex items-center text-zinc-600">
             <span
               className={
                 "font-mono " + dbToTypes[database][fieldData.type].color
@@ -442,7 +444,18 @@ export default function Table({
                   : "")}
             </span>
           </div>
-        ) : null}
+        ) : (
+          <div className="px-2 h-full flex items-center text-zinc-400">
+            {hoveredField === index ? (
+              <Button
+                theme="solid"
+                size="small"
+                style={{ backgroundColor: "#d42020b3" }}
+                icon={<IconMinus />}
+                onClick={() => deleteField(fieldData, tableData.id)}
+              />) : null}
+          </div>
+        )}
       </div>
     );
   }
