@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { SideSheet } from "@douyinfe/semi-ui";
 import RelationshipInfo from "../EditorSidePanel/RelationshipsTab/RelationshipInfo";
 
-const labelFontSize = 16;
+// const labelFontSize = 16;
 
 export default function Relationship({ data }) {
   const [editing, setEditing] = useState(false);
@@ -37,7 +37,7 @@ export default function Relationship({ data }) {
   }, [data.id, selectedElement.id]);
 
   const pathRef = useRef();
-  const labelRef = useRef();
+  // const labelRef = useRef();
 
   let cardinalityStart = "1";
   let cardinalityEnd = "1";
@@ -67,29 +67,38 @@ export default function Relationship({ data }) {
   let cardinalityEndX = 0;
   let cardinalityStartY = 0;
   let cardinalityEndY = 0;
-  let labelX = 0;
-  let labelY = 0;
 
-  let labelWidth = labelRef.current?.getBBox().width ?? 0;
-  let labelHeight = labelRef.current?.getBBox().height ?? 0;
+  let directionStart = 1;
+  let directionEnd = 1;
 
-  const cardinalityOffset = 28;
+  // let labelX = 0;
+  // let labelY = 0;
+
+  // let labelWidth = labelRef.current?.getBBox().width ?? 0;
+  // let labelHeight = labelRef.current?.getBBox().height ?? 0;
+
+  const cardinalityOffset = 0;
 
   if (pathRef.current) {
     const pathLength = pathRef.current.getTotalLength();
 
-    const labelPoint = pathRef.current.getPointAtLength(pathLength / 2);
-    labelX = labelPoint.x - (labelWidth ?? 0) / 2;
-    labelY = labelPoint.y + (labelHeight ?? 0) / 2;
+    // const labelPoint = pathRef.current.getPointAtLength(pathLength / 2);
+    // labelX = labelPoint.x - (labelWidth ?? 0) / 2;
+    // labelY = labelPoint.y + (labelHeight ?? 0) / 2;
 
     const point1 = pathRef.current.getPointAtLength(cardinalityOffset);
     cardinalityStartX = point1.x;
     cardinalityStartY = point1.y;
-    const point2 = pathRef.current.getPointAtLength(
-      pathLength - cardinalityOffset,
-    );
+
+    const point1Ahead = pathRef.current.getPointAtLength(cardinalityOffset + 1);
+    directionStart = point1Ahead.x < point1.x ? -1 : 1;
+
+    const point2 = pathRef.current.getPointAtLength(pathLength - cardinalityOffset);
     cardinalityEndX = point2.x;
     cardinalityEndY = point2.y;
+
+    const point2Behind = pathRef.current.getPointAtLength(pathLength - cardinalityOffset - 1);
+    directionEnd = point2Behind.x < point2.x ? -1 : 1;
   }
 
   const edit = () => {
@@ -117,7 +126,7 @@ export default function Relationship({ data }) {
   };
 
   const editingPathClass = ["group-hover:stroke-sky-700", editing && "stroke-sky-700"].filter(Boolean).join(" ");
-  const editingCircleClass = ["group-hover:fill-sky-700", editing && "fill-sky-700"].filter(Boolean).join(" ");
+  // const editingCircleClass = ["group-hover:fill-sky-700", editing && "fill-sky-700"].filter(Boolean).join(" ");
 
   return (
     <>
@@ -131,34 +140,37 @@ export default function Relationship({ data }) {
           strokeWidth={2}
           cursor="pointer"
         />
-        {settings.showRelationshipLabels && (
-          <text
-            x={labelX}
-            y={labelY}
-            fill={settings.mode === "dark" ? "lightgrey" : "#333"}
-            fontSize={labelFontSize}
-            fontWeight={500}
-            ref={labelRef}
-            className={editingCircleClass}
-          >
-            {data.name}
-          </text>
-        )}
         {pathRef.current && settings.showCardinality && (
           <>
-            <CardinalityLabel
+            <CardinalitySymbol
               x={cardinalityStartX}
               y={cardinalityStartY}
-              text={cardinalityStart}
-              className={editingCircleClass}
+              direction={directionStart}
+              value={cardinalityStart}
+              className={editingPathClass}
             />
-            <CardinalityLabel
+            <CardinalitySymbol
               x={cardinalityEndX}
               y={cardinalityEndY}
-              text={cardinalityEnd}
-              className={editingCircleClass}
+              direction={directionEnd}
+              value={cardinalityEnd}
+              className={editingPathClass}
             />
           </>
+          // <>
+          //   <CardinalityLabel
+          //     x={cardinalityStartX}
+          //     y={cardinalityStartY}
+          //     text={cardinalityStart}
+          //     className={editingCircleClass}
+          //   />
+          //   <CardinalityLabel
+          //     x={cardinalityEndX}
+          //     y={cardinalityEndY}
+          //     text={cardinalityEnd}
+          //     className={editingCircleClass}
+          //   />
+          // </>
         )}
       </g>
       <SideSheet
@@ -186,40 +198,92 @@ export default function Relationship({ data }) {
   );
 }
 
-function CardinalityLabel({ x, y, text, r = 12, padding = 14, className = "" }) {
-  const [textWidth, setTextWidth] = useState(0);
-  const textRef = useRef(null);
+function CardinalitySymbol({ x, y, direction, value, className }) {
+  const isOne = value === "1";
+  const isMany = value !== "1";
 
-  useEffect(() => {
-    if (textRef.current) {
-      const bbox = textRef.current.getBBox();
-      setTextWidth(bbox.width);
-    }
-  }, [text]);
+  const oneColor = isOne ? "gray" : "none";
+  const manyColor = isMany ? "gray" : "none";
 
   return (
-    <g>
-      <rect
-        x={x - textWidth / 2 - padding / 2}
-        y={y - r}
-        rx={r}
-        ry={r}
-        width={textWidth + padding}
-        height={r * 2}
-        fill="grey"
-        className={className}
-      />
-      <text
-        ref={textRef}
-        x={x}
-        y={y}
-        fill="white"
-        strokeWidth="0.5"
-        textAnchor="middle"
-        alignmentBaseline="middle"
-      >
-        {text}
-      </text>
+    <g transform={`translate(${direction == 1 ? x + 1 : x - 23},${y})`}>
+      {direction === 1 ? (
+        <>
+          <line
+            x1="23"
+            y1="-10"
+            x2="23"
+            y2="10"
+            className={isOne ? className : ""}
+            stroke={oneColor}
+            strokeWidth="2"
+          />
+          <path
+            d="M0 -10 L23 0 L0 10"
+            className={isMany ? className : ""}
+            stroke={manyColor}
+            strokeWidth="2"
+            fill="none"
+          />
+        </>
+      ) : (
+        <>
+          <line
+            x1="0"
+            y1="-10"
+            x2="0"
+            y2="10"
+            className={isOne ? className : ""}
+            stroke={oneColor}
+            strokeWidth="2"
+          />
+          <path
+            d="M23 -10 L0 0 L23 10"
+            className={isMany ? className : ""}
+            stroke={manyColor}
+            strokeWidth="2"
+            fill="none"
+          />
+        </>
+      )}
     </g>
   );
 }
+
+// function CardinalityLabel({ x, y, text, r = 12, padding = 14, className = "" }) {
+//   const [textWidth, setTextWidth] = useState(0);
+//   const textRef = useRef(null);
+
+//   useEffect(() => {
+//     if (textRef.current) {
+//       const bbox = textRef.current.getBBox();
+//       setTextWidth(bbox.width);
+//     }
+//   }, [text]);
+
+//   return (
+//     <g>
+//       <rect
+//         x={x - textWidth / 2 - padding / 2}
+//         y={y - r}
+//         rx={r}
+//         ry={r}
+//         width={textWidth + padding}
+//         height={r * 2}
+//         fill="grey"
+//         className={className}
+//       />
+//       <text
+//         ref={textRef}
+//         x={x}
+//         y={y}
+//         fill="white"
+//         strokeWidth="0.5"
+//         textAnchor="middle"
+//         alignmentBaseline="middle"
+//       >
+//         {text}
+//       </text>
+//     </g>
+//   );
+// }
