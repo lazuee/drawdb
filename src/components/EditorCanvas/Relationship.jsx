@@ -133,11 +133,11 @@ export default function Relationship({ data }) {
       <g className="select-none group cursor-pointer" onDoubleClick={edit}>
         <path
           ref={pathRef}
-          d={calcPath(pathValues, settings.tableWidth)}
-          stroke="gray"
+          d={calcPath(pathValues, settings.tableWidth, settings.curveRadius)}
+          stroke="black"
           className={editingPathClass}
           fill="none"
-          strokeWidth={2}
+          strokeWidth={3}
           cursor="pointer"
         />
         {pathRef.current && settings.showCardinality && (
@@ -202,8 +202,8 @@ function CardinalitySymbol({ x, y, direction, value, className }) {
   const isOne = value === "1";
   const isMany = value !== "1";
 
-  const oneColor = isOne ? "gray" : "none";
-  const manyColor = isMany ? "gray" : "none";
+  const oneColor = isOne ? "black" : "none";
+  const manyColor = isMany ? "black" : "none";
 
   return (
     <g transform={`translate(${direction == 1 ? x + 1 : x - 23},${y})`}>

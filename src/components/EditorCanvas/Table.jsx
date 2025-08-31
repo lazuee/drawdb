@@ -45,7 +45,7 @@ export default function Table({
   } = useSelect();
 
   const borderColor = useMemo(
-    () => (settings.mode === "light" ? "border-zinc-500" : "border-zinc-400"),
+    () => (settings.mode === "light" ? "border-black" : "border-zinc-400"),
     [settings.mode],
   );
 
@@ -142,22 +142,21 @@ export default function Table({
       >
         <div
           onDoubleClick={openEditor}
-          className={`border-2 hover:border-dashed hover:border-blue-500
+          className={`rounded-lg overflow-hidden border-3 hover:border-dashed hover:border-blue-500
                select-none w-full ${settings.mode === "light"
-              ? "bg-zinc-100 text-zinc-800"
+              ? "bg-white text-zinc-900"
               : "bg-zinc-800 text-zinc-200"
             } ${isSelected ? "border-solid border-blue-500" : borderColor}`}
           style={{ direction: "ltr" }}
         >
           <div
-            className="h-[10px] w-full"
-            style={{ backgroundColor: tableData.color }}
+            className="h-[10px] w-full bg-zinc-200 border-b-2 border-black"
           />
           <div
-            className={`overflow-hidden font-bold h-[40px] flex justify-between items-center border-b border-zinc-600 ${settings.mode === "light" ? "bg-zinc-200" : "bg-zinc-900"
+            className={`overflow-hidden font-bold h-[40px] flex justify-between items-center border-b-2 border-black ${settings.mode === "light" ? "bg-white" : "bg-zinc-900"
               }`}
           >
-            <div className="px-3 overflow-hidden text-ellipsis whitespace-nowrap">
+            <div className="px-3 overflow-hidden text-[1.09rem] text-ellipsis whitespace-nowrap">
               {tableData.name}
             </div>
             <div className="hidden group-hover:block">
@@ -208,11 +207,11 @@ export default function Table({
                               <div
                                 key={k}
                                 className={`flex items-center my-1 px-2 py-1 ${settings.mode === "light"
-                                  ? "bg-gray-100"
+                                  ? "bg-zinc-50"
                                   : "bg-zinc-800"
                                   }`}
                               >
-                                <i className="fa-solid fa-thumbtack me-2 mt-1 text-slate-500"></i>
+                                <i className="fa-solid fa-thumbtack me-2 mt-1 text-zinc-800"></i>
                                 <div>
                                   {index.fields.map((f) => (
                                     <Tag color="blue" key={f} className="me-1">
@@ -268,7 +267,7 @@ export default function Table({
                       <p className="me-4 font-bold">{e.name}</p>
                       <p
                         className={
-                          "ms-4 font-mono " + dbToTypes[database][e.type].color
+                          "ms-4 font-mono "// + dbToTypes[database][e.type].color
                         }
                       >
                         {e.type +
@@ -363,7 +362,7 @@ export default function Table({
 
     return (
       <div
-        className={`${index === tableData.fields.length - 1 ? "" : "border-b border-zinc-400"
+        className={`${index === tableData.fields.length - 1 ? "" : "border-b border-zinc-700"
           } group h-[36px] w-full grid ${settings.showDataTypes ? "grid-cols-[40px_1fr_120px]" : "grid-cols-[1fr_40px]"} items-center`}
         onPointerEnter={(e) => {
           if (!e.isPrimary) return;
@@ -388,7 +387,7 @@ export default function Table({
         }}
       >
         {settings.showDataTypes ? (
-          <div className="h-full flex items-center justify-center text-center font-mono text-zinc-600">
+          <div className="h-full flex items-center justify-center text-center text-sm font-semibold text-black">
             {hoveredField === index ? (
               <Button
                 theme="solid"
@@ -400,9 +399,9 @@ export default function Table({
             ) : keyType}
           </div>
         ) : null}
-        <div className={`h-full border-zinc-400 flex items-center gap-2 overflow-hidden px-2 ${settings.showDataTypes ? "border-x" : "border-0"}`}>
+        <div className={`relative h-full border-zinc-700 flex items-center gap-2 overflow-hidden px-2 ${settings.showDataTypes ? "border-x" : "border-0"}`}>
           <button
-            className="shrink-0 w-[10px] h-[10px] bg-[#2f68adcc] rounded-full"
+            className="absolute z-50 right-2 shrink-0 w-[16px] h-[16px] group-hover:bg-white border border-transparent hover:bg-[#2f68adcc] group-hover:border-black"
             onPointerDown={(e) => {
               if (!e.isPrimary) return;
 
@@ -426,15 +425,15 @@ export default function Table({
               }));
             }}
           />
-          <span className="overflow-hidden text-ellipsis whitespace-nowrap">
+          <span className="overflow-hidden text-base text-ellipsis font-bold text-black whitespace-nowrap">
             {fieldData.name}
           </span>
         </div>
         {settings.showDataTypes ? (
-          <div className="px-2 h-full flex items-center text-zinc-600">
+          <div className="px-2 h-full flex items-center text-black">
             <span
               className={
-                "font-mono " + dbToTypes[database][fieldData.type].color
+                "font-semibold text-sm" //+ dbToTypes[database][fieldData.type].color
               }
             >
               {fieldData.type +
