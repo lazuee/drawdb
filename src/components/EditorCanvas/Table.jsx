@@ -211,7 +211,12 @@ export default function Table({
                                   : "bg-zinc-800"
                                   }`}
                               >
-                                <i className="fa-solid fa-thumbtack me-2 mt-1 text-zinc-800"></i>
+                                <i
+                                  className={`fa-solid fa-thumbtack me-2 mt-1 ${settings.mode === "light"
+                                    ? "text-zinc-800"
+                                    : "text-zinc-50"
+                                    }`}
+                                ></i>
                                 <div>
                                   {index.fields.map((f) => (
                                     <Tag color="blue" key={f} className="me-1">
@@ -387,7 +392,10 @@ export default function Table({
         }}
       >
         {settings.showDataTypes ? (
-          <div className="h-full flex items-center justify-center text-center text-sm font-semibold text-black">
+          <div className={`h-full flex items-center justify-center text-center text-sm font-semibold ${settings.mode === "light"
+            ? "text-zinc-800"
+            : "text-zinc-50"
+            }`}>
             {hoveredField === index ? (
               <Button
                 theme="solid"
@@ -425,12 +433,18 @@ export default function Table({
               }));
             }}
           />
-          <span className="overflow-hidden text-base text-ellipsis font-bold text-black whitespace-nowrap">
+          <span className={`overflow-hidden text-base text-ellipsis font-boldwhitespace-nowrap ${settings.mode === "light"
+            ? "text-zinc-800"
+            : "text-zinc-50"
+            }`}>
             {fieldData.name}
           </span>
         </div>
         {settings.showDataTypes ? (
-          <div className="px-2 h-full flex items-center text-black">
+          <div className={`px-2 h-full flex items-center ${settings.mode === "light"
+            ? "text-zinc-800"
+            : "text-zinc-50"
+            }`}>
             <span
               className={
                 "font-semibold text-sm" //+ dbToTypes[database][fieldData.type].color

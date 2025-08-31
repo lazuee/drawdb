@@ -134,7 +134,10 @@ export default function Relationship({ data }) {
         <path
           ref={pathRef}
           d={calcPath(pathValues, settings.tableWidth, settings.curveRadius)}
-          stroke="black"
+          stroke={settings.mode === "light"
+            ? "black"
+            : "gray"
+          }
           className={editingPathClass}
           fill="none"
           strokeWidth={3}
@@ -148,6 +151,7 @@ export default function Relationship({ data }) {
               direction={directionStart}
               value={cardinalityStart}
               className={editingPathClass}
+              settings={settings}
             />
             <CardinalitySymbol
               x={cardinalityEndX}
@@ -155,6 +159,7 @@ export default function Relationship({ data }) {
               direction={directionEnd}
               value={cardinalityEnd}
               className={editingPathClass}
+              settings={settings}
             />
           </>
           // <>
@@ -198,12 +203,16 @@ export default function Relationship({ data }) {
   );
 }
 
-function CardinalitySymbol({ x, y, direction, value, className }) {
+function CardinalitySymbol({ x, y, direction, value, className, settings }) {
   const isOne = value === "1";
   const isMany = value !== "1";
 
-  const oneColor = isOne ? "black" : "none";
-  const manyColor = isMany ? "black" : "none";
+  const color = settings.mode === "light"
+    ? "black"
+    : "gray"
+
+  const oneColor = isOne ? color : "none";
+  const manyColor = isMany ? color : "none";
 
   return (
     <g transform={`translate(${direction == 1 ? x + 1 : x - 23},${y})`}>
